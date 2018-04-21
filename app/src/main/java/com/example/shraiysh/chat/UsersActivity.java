@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseListOptions;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -28,6 +29,9 @@ public class UsersActivity extends AppCompatActivity {
     private Toolbar mToolBar;
     private RecyclerView mUsersList;
     private DatabaseReference mUsersDatabase;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserRef;
+
     FirebaseRecyclerAdapter firebaseRecyclerAdapter;
 
     @Override
@@ -36,12 +40,16 @@ public class UsersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_users);
 
         mToolBar = (Toolbar)findViewById(R.id.users_appbar);
+        mAuth = FirebaseAuth.getInstance();
+
 
         setSupportActionBar(mToolBar);
         getSupportActionBar().setTitle("All Users");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+
 
         mUsersList = (RecyclerView) findViewById(R.id.users_list);
         mUsersList.setHasFixedSize(true);
@@ -92,6 +100,10 @@ public class UsersActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(true);
+
+        }
         firebaseRecyclerAdapter.startListening();
     }
 
@@ -99,9 +111,16 @@ public class UsersActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         firebaseRecyclerAdapter.stopListening();
+
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(false);
+        }
+    }
 
     public static class UsersViewHolder extends RecyclerView.ViewHolder {
 
