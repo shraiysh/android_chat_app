@@ -52,6 +52,9 @@ public class SettingsActivity extends AppCompatActivity {
     private CircleImageView mCircleImageView;
     private TextView mName;
     private TextView mStatus;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserRef;
+
 
     private Button mChangeName;
     private Button mChangeStatus;
@@ -66,6 +69,11 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         mCircleImageView = (CircleImageView)findViewById(R.id.settings_circle_image);
+        mAuth = FirebaseAuth.getInstance();
+
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+
+
         mName = (TextView)findViewById(R.id.settings_display_name);
         mStatus = (TextView)findViewById(R.id.settings_status);
 
@@ -248,5 +256,25 @@ public class SettingsActivity extends AppCompatActivity {
 //        }
 //        return randomStringBuilder.toString();
 //    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(false);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if(currentUser != null) {
+            mUserRef.child("online").setValue(true);
+        }
+    }
 }
 

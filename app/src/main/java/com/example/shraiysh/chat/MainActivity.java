@@ -13,6 +13,8 @@ import android.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mPager;
     private SectionsPagerAdapter mAdapter;
     private TabLayout mTabLayout;
+
+    private DatabaseReference mUserRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +39,21 @@ public class MainActivity extends AppCompatActivity {
         mPager.setAdapter(mAdapter);
         mTabLayout = (TabLayout)findViewById(R.id.main_tabs);
         mTabLayout.setupWithViewPager(mPager);
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
 
         setSupportActionBar(mToolBar);
         getSupportActionBar().setTitle("Chatting");
 
 
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(false);
+        }
     }
 
     @Override
@@ -51,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(currentUser == null) {
             sendToStart();
+        }
+        else {
+            mUserRef.child("online").setValue(true);
         }
     }
 

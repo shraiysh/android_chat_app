@@ -28,6 +28,9 @@ public class StatusActivity extends AppCompatActivity {
 
     private EditText mNewStatus;
     private Button mSaveBtn;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserRef;
+
 
     private DatabaseReference mStatusDatabase;
     private FirebaseUser mCurrentUser;
@@ -40,6 +43,8 @@ public class StatusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_status);
 
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.status_app_bar);
+        mAuth = FirebaseAuth.getInstance();
+
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("Account Status");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -47,6 +52,8 @@ public class StatusActivity extends AppCompatActivity {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUID = mCurrentUser.getUid();
         mStatusDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUID);
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+
 
 
         mNewStatus = (EditText) findViewById(R.id.new_status);
@@ -81,5 +88,23 @@ public class StatusActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(false);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if(currentUser != null)
+            mUserRef.child("online").setValue(true);
     }
 }

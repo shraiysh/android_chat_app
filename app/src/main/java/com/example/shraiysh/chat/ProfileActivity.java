@@ -32,6 +32,9 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView mProfileName, mProfileStatus, mProfileFriendsCount;
     private Button mProfileSendReqBtn, mDeclineButton;
 
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserRef;
+
     private DatabaseReference mUserDatabase;
     private DatabaseReference mFriendReqDatabase;
     private DatabaseReference mFriendDatabase;
@@ -43,17 +46,23 @@ public class ProfileActivity extends AppCompatActivity {
 
     private String mCurrent_state;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
         final String user_id = getIntent().getStringExtra("user_id");
+        mAuth = FirebaseAuth.getInstance();
+
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(user_id);
         mFriendReqDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req");
         mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends");
         mNotificatoionDatabase = FirebaseDatabase.getInstance().getReference().child("notifications");
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+
 
         mProfileImage = (ImageView)findViewById(R.id.profile_image);
         mProfileName = (TextView) findViewById(R.id.profile_username);
@@ -224,11 +233,11 @@ public class ProfileActivity extends AppCompatActivity {
                 if(mCurrent_state == "req_recieved") {
 
                     final String current_date = DateFormat.getDateInstance().format(new Date());
-                    mFriendDatabase.child(mCurrentUser.getUid()).child(user_id).setValue(current_date)
+                    mFriendDatabase.child(mCurrentUser.getUid()).child(user_id).child("date").setValue(current_date)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    mFriendDatabase.child(user_id).child(mCurrentUser.getUid()).setValue(current_date)
+                                    mFriendDatabase.child(user_id).child(mCurrentUser.getUid()).child("date").setValue(current_date)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
@@ -276,5 +285,26 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mAuth.getCurrentUser()!=null) {
+            mUserRef.child("online").setValue(false);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if(currentUser == null) {
+        }
+        else {
+            mUserRef.child("online").setValue(true);
+        }
     }
 }
