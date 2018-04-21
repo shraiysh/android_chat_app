@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Chat</string>
+    <string name="need_a_new_account">NEED A NEW ACCOUNT?</string>
+    <string name="display_name">Display Name</string>
+    <string name="password">Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="email">Email</string>
+    <string name="log_out">Log Out</string>
+    <string name="login">Login</string>
+    <string name="welcome_here">Welcome Here.</string>
+    <string name="create_a_new_account">Create a new account</string>
+    <string name="this_is_main_page">This is MAIN PAGE</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="friends_page">Friends Page</string>
+    <string name="requests_page">Requests Page</string>
+    <string name="chats_page">Chats Page</string>
+    <string name="hey_there_i_m_using_menfriends">Hey, There ! I m using MeNfriends</string>
+    <string name="default_name">Anonymus</string>
+    <string name="change_status">Change Status</string>
+    <string name="change_name">Change Name</string>
+</resources>
